@@ -3,7 +3,7 @@
     <h2>Sign up</h2>
     <input type="text" placeholder="Email" v-model="email" />
     <input type="password" placeholder="Password" v-model="password" />
-    <button>Register</button>
+    <button @click="signUp">Register</button>
     <p>
       Do you have an account?
       <router-link to="/signin">sign in now!!</router-link>
@@ -13,6 +13,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs } from 'vue'
+import firebase from 'firebase'
 
 export default defineComponent({
   name: 'SignUp',
@@ -21,8 +22,20 @@ export default defineComponent({
       email: '',
       password: '',
     })
+    const signUp = () => {
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(state.email, state.password)
+        .then((res) => {
+          console.log('Create account: ', res)
+        })
+        .catch((e) => {
+          console.log(e.message)
+        })
+    }
     return {
       ...toRefs(state),
+      signUp,
     }
   },
 })

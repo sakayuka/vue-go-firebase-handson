@@ -1,15 +1,19 @@
 <template>
   <div class="hello">
+    <h1>Hello {{ name }}!</h1>
     <h1>{{ msg }}</h1>
     <h2>Essential Links</h2>
+    <button @click="signOut">Sign out</button>
     <button @click="apiPublic">public</button>
     <button @click="apiPrivate">private</button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
+import firebase from 'firebase'
 
 export default defineComponent({
   name: 'HelloWorld',
@@ -17,6 +21,16 @@ export default defineComponent({
     msg: String,
   },
   setup(props, { emit }) {
+    const router = useRouter()
+    const signOut = () => {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          localStorage.removeItem('jwt')
+          router.push('/signin')
+        })
+    }
     const apiPublic = async () => {
       const res = await axios.get('http://localhost:8000/public')
       emit('update:msg', res.data)
@@ -25,7 +39,16 @@ export default defineComponent({
       const res = await axios.get('http://localhost:8000/private')
       emit('update:msg', res.data)
     }
+    const name = computed(() => {
+      const u = firebase.auth().currentUser
+      if (u !== null) {
+        return u.email
+      }
+      return ''
+    })
     return {
+      name,
+      signOut,
       apiPublic,
       apiPrivate,
     }

@@ -3,7 +3,7 @@
     <h2>Sign in</h2>
     <input type="text" placeholder="Email" v-model="email" />
     <input type="password" placeholder="Password" v-model="password" />
-    <button>Signin</button>
+    <button @click="signIn">Signin</button>
     <p>
       You don't have an account?
       <router-link to="/signup">create account now!!</router-link>
@@ -13,17 +13,48 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs } from 'vue'
+import { useRouter } from 'vue-router'
+import firebase from 'firebase'
 
 export default defineComponent({
   name: 'SignUp',
   setup() {
+    const router = useRouter()
     const state = reactive({
       email: '',
       password: '',
     })
-
+    const signIn = () => {
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(state.email, state.password)
+        .then((res) => {
+          console.log(res)
+          setToken()
+        })
+        .catch((e) => {
+          console.log(e.code)
+          alert(e.message)
+        })
+    }
+    const setToken = () => {
+      const u = firebase.auth().currentUser
+      if (u == null) {
+        localStorage.removeItem('jwt')
+      } else {
+        u.getIdToken(true)
+          .then((token) => {
+            localStorage.setItem('jwt', token)
+            router.push('/')
+          })
+          .catch((e) => {
+            console.log(e.message)
+          })
+      }
+    }
     return {
       ...toRefs(state),
+      signIn,
     }
   },
 })
