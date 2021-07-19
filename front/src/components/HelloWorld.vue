@@ -17,14 +17,13 @@ export default defineComponent({
     msg: String,
   },
   setup(props, { emit }) {
-    console.log(props.msg)
     const apiPublic = async () => {
       const res = await axios.get('http://localhost:8000/public')
-      emit('update:msg', res)
+      emit('update:msg', res.data)
     }
     const apiPrivate = async () => {
       const res = await axios.get('http://localhost:8000/private')
-      emit('update:msg', res)
+      emit('update:msg', res.data)
     }
     return {
       apiPublic,
