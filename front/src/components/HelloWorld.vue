@@ -33,18 +33,22 @@ export default defineComponent({
     }
     const apiPublic = async () => {
       const res = await axios.get('http://localhost:8000/public')
+      console.log(res)
       emit('update:msg', res.data)
     }
     const apiPrivate = async () => {
-      const res = await axios.get('http://localhost:8000/private')
+      const res = await axios.get('http://localhost:8000/private', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` },
+      })
+      console.log(res)
       emit('update:msg', res.data)
     }
     const name = computed(() => {
-      const u = firebase.auth().currentUser
-      if (u !== null) {
-        return u.email
+      const user = firebase.auth().currentUser
+      if (user === null) {
+        return ''
       }
-      return ''
+      return user.email
     })
     return {
       name,
